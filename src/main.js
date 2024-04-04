@@ -5,7 +5,7 @@ const server = require('./server');
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-
+let backendProcess;
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -17,7 +17,10 @@ const createWindow = () => {
     },
   });
 
-  let backendProcess = server.startBackendServer('./server/RestApp.exe');
+  if (backendProcess === undefined)
+  {
+    backendProcess = server.startBackendServer('./server/RestApp.exe');
+  }
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
@@ -42,6 +45,7 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  backendProcess.kill();
   if (process.platform !== 'darwin') {
     app.quit();
   }
